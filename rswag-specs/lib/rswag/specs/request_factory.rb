@@ -116,9 +116,13 @@ module Rswag
         end
       end
 
+      def param_is_array?(param)
+        param[:type]&.to_sym == :array || param.dig(:schema, :type)&.to_sym == :array
+      end
+
       def build_query_string_part(param, value)
         name = param[:name]
-        return "#{name}=#{value}" unless param[:type].to_sym == :array
+        return "#{name}=#{value}" unless param_is_array?(param)
 
         case param[:collectionFormat]
         when :ssv
