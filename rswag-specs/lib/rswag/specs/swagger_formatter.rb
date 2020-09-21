@@ -121,22 +121,19 @@ module Rswag
       end
 
       def upgrade_response_produces!(swagger_doc, metadata)
-        # Accept header
-        mime_list = Array(metadata[:operation][:produces] || swagger_doc[:produces])
+        # Accept header from describe block
+        mime_type = metadata[:mime]
         target_node = metadata[:response]
-        upgrade_content!(mime_list, target_node)
+        upgrade_content!(mime_type, target_node)
         metadata[:response].delete(:schema)
       end
 
-      def upgrade_content!(mime_list, target_node)
+      def upgrade_content!(mime_type, target_node)
         target_node[:content] ||= {} # Here we're avoiding "content" key overriding
         schema = target_node[:schema]
-        return if mime_list.empty? || schema.nil?
+        return if mime_type.blank? || schema.nil?
 
-        mime_list.each do |mime_type|
-          # TODO upgrade to have content-type specific schema
-          (target_node[:content][mime_type] ||= {}).merge!(schema: schema)
-        end
+        (target_node[:content][mime_type] ||= {}).merge!(schema: schema)
       end
 
       def upgrade_request_type!(metadata)
